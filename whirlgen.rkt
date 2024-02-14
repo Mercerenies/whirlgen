@@ -33,6 +33,10 @@
 ;; (6) The largest variable that is NOT part of the trailing array is
 ;; the constant -1, which we'll use to move left in memory.
 
-(require "command.rkt")
+(require "structures.rkt")
+(require "state.rkt")
 
-(println op/exit)
+(define var/-1 (var 'minus-one 2))
+
+(let ([state (new state% [var/-1 var/-1])])
+  (println (send state get-active-ring)))

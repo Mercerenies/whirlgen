@@ -3,10 +3,11 @@
 
 (struct command (ring-name index) #:transparent)
 
-(define ring/c
+(define ring-name/c
   (or/c 'operations 'math))
 
 (define noop 0)
+(define ring-size 12)
 
 (define op/noop (command 'operations noop))
 (define op/exit (command 'operations 1))
@@ -37,9 +38,10 @@
 (provide
  (contract-out
   [struct command
-    ((ring-name ring/c) (index integer?))]
-  [ring/c contract?]
+    ((ring-name ring-name/c) (index integer?))]
+  [ring-name/c contract?]
   [noop integer?]
+  [ring-size integer?]
   [op/noop command?]
   [op/exit command?]
   [op/set-to-one command?]
