@@ -30,17 +30,17 @@
 
 (define project-euler-179
   (build-whirl var/-1
-    (store-constant var/i 1337)
+    (store-constant var/i 100)
     (print-number)
-    (put-constant 10)
+    (store-constant var/constant 10)
     (print-ascii)
-    (put-constant -98712301)
+    (store-constant var/j 34)
     (print-number)
-    (put-constant 10)
+    (store-constant var/constant 10)
     (print-ascii)
-    (put-constant 0)
+    (mul var/i var/j)
     (print-number)
-    (put-constant 10)
+    (store-constant var/constant 10)
     (print-ascii)))
 
 (provide project-euler-179)

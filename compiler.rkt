@@ -76,9 +76,36 @@
    (exec math/store-memory)
    #:comment (format "Assign [~a] = [~a]" (var-name destination-var) (var-name source-var))))
 
+(define/contract (add destination-var source-var)
+  ;; Adds the source variable to the destination variable, storing the
+  ;; result in the destination variable. Clobbers both wheel values
+  ;; and seeks to destination-var.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index source-var))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index destination-var))
+   (exec math/+)
+   (exec math/store-memory)
+   #:comment (format "[~a] += [~a]" (var-name destination-var) (var-name source-var))))
+
+(define/contract (mul destination-var source-var)
+  ;; Multiplies the source variable to the destination variable,
+  ;; storing the result in the destination variable. Clobbers both
+  ;; wheel values and seeks to destination-var.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index source-var))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index destination-var))
+   (exec math/*)
+   (exec math/store-memory)
+   #:comment (format "[~a] *= [~a]" (var-name destination-var) (var-name source-var))))
+
 (provide build-whirl
          prelude exec
          print-number print-ascii
-         seek-memory seek-var assign
+         seek-memory seek-var
+         assign add mul
          (contract-out
           (interpreter-state (-> (is-a?/c state%)))))
