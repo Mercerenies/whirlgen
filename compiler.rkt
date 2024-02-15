@@ -109,6 +109,66 @@
    (exec math/store-memory)
    #:comment (format "[~a] *= [~a]" (var-name destination-var) (var-name source-var))))
 
+(define/contract (reversed-div destination-var source-var)
+  ;; Sets destination-var to int(source-var / destination-var). Note
+  ;; carefully the order of arguments, as this was the easiest way to
+  ;; implement the operator. Seeks to destination-var at the end.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index source-var))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index destination-var))
+   (exec math/div)
+   (exec math/store-memory)
+   #:comment (format "[~a] = [~a] / [~a]" (var-name destination-var) (var-name source-var) (var-name destination-var))))
+
+(define/contract (cmp-= var/dest var/src)
+  ;; Sets var/dest to 1 if var/dest == var/src or 0 otherwise. Seeks
+  ;; to var/dest.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var/src))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index var/dest))
+   (exec math/=)
+   (exec math/store-memory)
+   #:comment (format "[~a] = ([~a] == [~a])" (var-name var/dest) (var-name var/src) (var-name var/dest))))
+
+(define/contract (cmp-< var/dest var/src)
+  ;; Sets var/dest to 1 if var/dest < var/src or 0 otherwise. Seeks
+  ;; to var/dest.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var/src))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index var/dest))
+   (exec math/>) ; NOTE: Reversed op here since our arguments are reversed.
+   (exec math/store-memory)
+   #:comment (format "[~a] = ([~a] < [~a])" (var-name var/dest) (var-name var/src) (var-name var/dest))))
+
+(define/contract (cmp-> var/dest var/src)
+  ;; Sets var/dest to 1 if var/dest < var/src or 0 otherwise. Seeks
+  ;; to var/dest.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var/src))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index var/dest))
+   (exec math/<) ; NOTE: Reversed op here since our arguments are reversed.
+   (exec math/store-memory)
+   #:comment (format "[~a] = ([~a] > [~a])" (var-name var/dest) (var-name var/src) (var-name var/dest))))
+
+(define/contract (do-modulo var/dest var/src var/tmp)
+  ;; Sets var/dest to (var/dest modulo var/src). Clobbers var/tmp and
+  ;; seeks to var/dest.
+  (-> var? var? var? code/c)
+  (code
+    (assign var/tmp var/src)
+    (reversed-div var/tmp var/dest)
+    (mul var/tmp var/src)
+    (arithmetic-negate var/tmp)
+    (add var/dest var/tmp)))
+
 (define/contract (logical-not var)
   ;; Logically invert the value at the given variable. Clobbers both
   ;; wheel values and seeks to var.
@@ -119,6 +179,17 @@
    (exec math/not)
    (exec math/store-memory)
    #:comment (format "[~a] = NOT [~a]" (var-name var) (var-name var))))
+
+(define/contract (arithmetic-negate var)
+  ;; Arithmetically invert the value at the given variable. Clobbers
+  ;; both wheel values and seeks to var.
+  (-> var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var))
+   (exec math/load-memory)
+   (exec math/negate)
+   (exec math/store-memory)
+   #:comment (format "[~a] = - [~a]" (var-name var) (var-name var))))
 
 (define/contract (->bool var)
   ;; Normalize to a zero or a one. Clobbers both wheels and seeks to var.
@@ -135,8 +206,8 @@
          prelude exec
          print-number print-ascii
          seek-memory seek-var
-         assign add mul
-         logical-not ->bool
+         assign add mul reversed-div do-modulo
+         logical-not arithmetic-negate ->bool
          (contract-out
           (interpreter-state (-> (is-a?/c state%)))
           (jump-constant-length (-> integer?))))
