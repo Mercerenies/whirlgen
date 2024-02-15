@@ -122,7 +122,7 @@
    (exec math/store-memory)
    #:comment (format "[~a] = [~a] / [~a]" (var-name destination-var) (var-name source-var) (var-name destination-var))))
 
-(define/contract (cmp-= var/dest var/src)
+(define/contract (cmp= var/dest var/src)
   ;; Sets var/dest to 1 if var/dest == var/src or 0 otherwise. Seeks
   ;; to var/dest.
   (-> var? var? code/c)
@@ -134,7 +134,7 @@
    (exec math/store-memory)
    #:comment (format "[~a] = ([~a] == [~a])" (var-name var/dest) (var-name var/src) (var-name var/dest))))
 
-(define/contract (cmp-< var/dest var/src)
+(define/contract (cmp< var/dest var/src)
   ;; Sets var/dest to 1 if var/dest < var/src or 0 otherwise. Seeks
   ;; to var/dest.
   (-> var? var? code/c)
@@ -146,7 +146,7 @@
    (exec math/store-memory)
    #:comment (format "[~a] = ([~a] < [~a])" (var-name var/dest) (var-name var/src) (var-name var/dest))))
 
-(define/contract (cmp-> var/dest var/src)
+(define/contract (cmp> var/dest var/src)
   ;; Sets var/dest to 1 if var/dest < var/src or 0 otherwise. Seeks
   ;; to var/dest.
   (-> var? var? code/c)
@@ -168,6 +168,18 @@
     (mul var/tmp var/src)
     (arithmetic-negate var/tmp)
     (add var/dest var/tmp)))
+
+(define/contract (increment var)
+  ;; Add one to the value at the given variable. Clobbers both wheel
+  ;; values and seeks to var.
+  (-> var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var))
+   (exec math/set-to-zero)
+   (exec math/not)
+   (exec math/+)
+   (exec math/store-memory)
+   #:comment (format "[~a]++" (var-name var))))
 
 (define/contract (logical-not var)
   ;; Logically invert the value at the given variable. Clobbers both
@@ -207,7 +219,8 @@
          print-number print-ascii
          seek-memory seek-var
          assign add mul reversed-div do-modulo
-         logical-not arithmetic-negate ->bool
+         cmp= cmp< cmp>
+         increment logical-not arithmetic-negate ->bool
          (contract-out
           (interpreter-state (-> (is-a?/c state%)))
           (jump-constant-length (-> integer?))))

@@ -30,8 +30,8 @@
 (define math/div (command 'math 5))
 (define math/set-to-zero (command 'math 6))
 (define math/< (command 'math 7))
-(define math/= (command 'math 8))
-(define math/> (command 'math 9))
+(define math/> (command 'math 8))
+(define math/= (command 'math 9))
 (define math/not (command 'math 10))
 (define math/negate (command 'math 11))
 
