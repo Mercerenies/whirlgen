@@ -90,7 +90,7 @@
   ;; correct variable.
   (-> var? var? integer? integer?)
   (define (make-number n)
-    (build-whirl var/-1 #:prelude #f
+    (build-whirl var/-1 0 #:prelude #f ;; Length of jump instruction is not used, so set it to zero
       ;; Assume we're already at the desired memory position but do
       ;; NOT include that in the resulting code count.
       (seek-var var/destination)

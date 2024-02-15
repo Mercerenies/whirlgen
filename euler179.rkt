@@ -31,7 +31,7 @@
 (define length-of-jump-instructions (+ 338 (* 264 program-length-upper-bound-exp)))
 
 (define project-euler-179
-  (build-whirl var/-1
+  (build-whirl var/-1 length-of-jump-instructions
     (store-constant var/i 3)
     (store-constant var/i 100)
     (print-number)

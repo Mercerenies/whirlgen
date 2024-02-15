@@ -9,14 +9,22 @@
 ;; Compiler and builders for the Whirl generator.
 
 (define interpreter-state (make-parameter #f))
+(define jump-constant-length (make-parameter #f))
 
 (define-syntax build-whirl
   (syntax-rules ()
-    [(build-whirl var/-1 #:prelude use-prelude . body)
-     (parameterize ([interpreter-state (new state% [var/-1 var/-1])])
+    [(build-whirl var/-1 jump-length #:prelude use-prelude . body)
+     (parameterize ([interpreter-state (new state% [var/-1 var/-1])]
+                    [jump-constant-length jump-length])
        (code (if use-prelude (prelude) (code)) . body))]
-    [(build-whirl var/-1 . body)
-     (build-whirl var/-1 #:prelude #t . body)]))
+    [(build-whirl var/-1 jump-length . body)
+     (build-whirl var/-1 jump-length #:prelude #t . body)]))
+
+(define-syntax-rule (local-whirl . body)
+  ;; Runs code locally in an interpreter state cloned from the current
+  ;; one.
+  (parameterize ([interpreter-state (send (interpreter-state) clone)])
+    (code . body)))
 
 (define/contract (prelude)
   (-> code/c)
@@ -102,10 +110,11 @@
    (exec math/store-memory)
    #:comment (format "[~a] *= [~a]" (var-name destination-var) (var-name source-var))))
 
-(provide build-whirl
+(provide build-whirl local-whirl
          prelude exec
          print-number print-ascii
          seek-memory seek-var
          assign add mul
          (contract-out
-          (interpreter-state (-> (is-a?/c state%)))))
+          (interpreter-state (-> (is-a?/c state%)))
+          (jump-constant-length (-> integer?))))

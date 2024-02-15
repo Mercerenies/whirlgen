@@ -20,7 +20,8 @@
            [spin-to (->m command? string?)]
            [execute (->m command? string?)]
            [move-memory (->m integer? string?)]
-           [normalize-rings (->m string?)])
+           [normalize-rings (->m string?)]
+           [clone (->m (is-a?/c state%))])
   (class object%
     (super-new)
     (init-field var/-1)
@@ -82,6 +83,13 @@
            "00"
            (send (get-inactive-ring) rotate-to noop)
            (if (eq? active-ring 'operations) "00" ""))
-        (set! active-ring 'operations)))))
+        (set! active-ring 'operations)))
+    (define/public (clone)
+      (let ([result (new state% [var/-1 var/-1])])
+        (set-field! active-ring result active-ring)
+        (set-field! operations-ring result (send operations-ring clone))
+        (set-field! math-ring result (send math-ring clone))
+        (set-field! memory-position result memory-position)
+        result))))
 
 (provide state%)
