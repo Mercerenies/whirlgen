@@ -5,6 +5,7 @@
 
 (require "structures.rkt")
 (require "compiler.rkt")
+(require "command.rkt")
 
 (define var/i (var 'i 0))
 (define var/j (var 'j 2))
@@ -14,6 +15,13 @@
 
 (define project-euler-179
   (build-whirl var/-1
-    "A"))
+    (seek-var var/i)
+    (exec op/set-to-one)
+    (exec op/store-memory)
+    (print-number)
+    (assign var/j var/i)
+    (seek-var var/-1)
+    (seek-var var/j)
+    (print-number)))
 
 (provide project-euler-179)

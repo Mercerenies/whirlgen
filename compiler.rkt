@@ -3,6 +3,8 @@
 
 (require "state.rkt")
 (require "code.rkt")
+(require "command.rkt")
+(require "structures.rkt")
 
 ;; Compiler and builders for the Whirl generator.
 
@@ -18,6 +20,49 @@
 
 (define/contract (prelude)
   (-> code/c)
-  (code))
+  (let ([var/-1 (get-field var/-1 (interpreter-state))])
+    (code
+      (send (interpreter-state) move-memory (var-index var/-1))
+      (exec math/set-to-zero)
+      (exec math/not)
+      (exec math/negate)
+      (exec math/store-memory)
+      #:comment "Initialize negative one constant")))
 
-(provide build-whirl prelude)
+(define/contract (exec command)
+  ;; Low-level exec command that just moves the wheel(s) and executes.
+  (-> command? code/c)
+  (code (send (interpreter-state) execute command)))
+
+(define/contract (print-number)
+  ;; Prints the value at the current memory position, as an integer.
+  (-> code/c)
+  (code
+    (exec op/set-to-one)
+    (exec op/integer-io)
+    #:comment "Print to stdout"))
+
+(define/contract (seek-var target-var)
+  ;; Moves the memory pointer to the given position. Clobbers operator
+  ;; wheel's value.
+  (-> var? code/c)
+  (code
+    (send (interpreter-state) move-memory (var-index target-var))
+    #:comment (format "Seek to ~a" (var-name target-var))))
+
+(define/contract (assign destination-var source-var)
+  ;; Sets the destination variable to the current value of the source
+  ;; variable. Clobbers both wheel values and seeks to
+  ;; destination-var.
+  (-> var? var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index source-var))
+   (exec math/load-memory)
+   (send (interpreter-state) move-memory (var-index destination-var))
+   (exec math/store-memory)
+   #:comment (format "Assign [~a] = [~a]" (var-name destination-var) (var-name source-var))))
+
+(provide build-whirl
+         prelude exec
+         print-number
+         seek-var assign)
