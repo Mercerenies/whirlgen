@@ -29,7 +29,7 @@
 
 (define (if0-initial-jump var/condition var/temporary distance)
   (code
-   (store-constant var/temporary distance #:desired-length (jump-constant-length))
+   (store-constant var/temporary distance)
    (mul var/condition var/temporary)
    (code (exec op/load-memory) #:comment "Load condition variable")
    (spin-rings-to-noop)
@@ -43,6 +43,8 @@
          #:comment "Zero out condition variable")
    (spin-rings-to-noop)
    (code (exec op/add-program-if) #:comment "Trivial jump (Endif)")))
+
+;;(define-syntax-rule (do-while-nonzero var/condition var/temporary 
 
 (define (spin-rings-to-noop)
   ;; Moves both rings to the noop position and guarantees that we are

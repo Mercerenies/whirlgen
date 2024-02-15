@@ -27,7 +27,8 @@
        ([> n 0] (put-constant>0 destination-pos digits))
        ([< n 0] (code (put-constant>0 destination-pos digits) (exec math/negate))))
      (exec math/store-memory)
-     #:comment comment)))
+     #:comment comment
+     #:desired-length desired-length)))
 
 (define/contract (store-constant var n #:desired-length [desired-length #f])
   ;; Stores the constant at the given memory position. Clobbers math
@@ -36,7 +37,7 @@
   (->* (var? integer?) (#:desired-length (or/c #f integer?)) code/c)
   (code
     (seek-var var)
-    (put-constant n)))
+    (put-constant n #:desired-length desired-length)))
 
 (define (put-constant>0 destination-pos digits)
   ;; Assuming some leading digits are present at the indicated memory
