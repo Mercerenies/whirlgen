@@ -23,8 +23,7 @@
 (define-syntax-rule (local-whirl . body)
   ;; Runs code locally in an interpreter state cloned from the current
   ;; one.
-  (parameterize ([interpreter-state (send (interpreter-state) clone)])
-    (code . body)))
+  (parameterize ([interpreter-state (send (interpreter-state) clone)]) . body))
 
 (define/contract (prelude)
   (-> code/c)
@@ -109,6 +108,28 @@
    (exec math/*)
    (exec math/store-memory)
    #:comment (format "[~a] *= [~a]" (var-name destination-var) (var-name source-var))))
+
+(define/contract (logical-not var)
+  ;; Logically invert the value at the given variable. Clobbers both
+  ;; wheel values and seeks to var.
+  (-> var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var))
+   (exec math/load-memory)
+   (exec math/not)
+   (exec math/store-memory)
+   #:comment (format "[~a] = NOT [~a]" (var-name var) (var-name var))))
+
+(define/contract (->bool var)
+  ;; Normalize to a zero or a one. Clobbers both wheels and seeks to var.
+  (-> var? code/c)
+  (code
+   (send (interpreter-state) move-memory (var-index var))
+   (exec math/load-memory)
+   (exec math/not)
+   (exec math/not)
+   (exec math/store-memory)
+   #:comment (format "Boolify [~a]" (var-name var))))
 
 (provide build-whirl local-whirl
          prelude exec

@@ -8,6 +8,7 @@
 (require "command.rkt")
 (require "numbers.rkt")
 (require "code.rkt")
+(require "flowcontrol.rkt")
 
 (define var/i (var 'i 0))
 (define var/j (var 'j 2))
@@ -32,18 +33,13 @@
 
 (define project-euler-179
   (build-whirl var/-1 length-of-jump-instructions
-    (store-constant var/i 3)
-    (store-constant var/i 100)
-    (print-number)
-    (store-constant var/constant 10)
-    (print-ascii)
-    (store-constant var/j 34)
-    (print-number)
-    (store-constant var/constant 10)
-    (print-ascii)
-    (mul var/i var/j)
-    (print-number)
-    (store-constant var/constant 10)
-    (print-ascii)))
+    (store-constant var/i 0)
+    (store-constant var/constant 1) (print-number)
+    (store-constant var/constant 10) (print-ascii)
+    (if0 var/i var/constant
+      (store-constant var/constant 2) (print-number)
+      (store-constant var/constant 10) (print-ascii))
+    (store-constant var/constant 3) (print-number)
+    (store-constant var/constant 10) (print-ascii)))
 
 (provide project-euler-179)

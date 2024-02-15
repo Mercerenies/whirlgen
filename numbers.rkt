@@ -11,11 +11,11 @@
 (require "utils.rkt")
 (require "structures.rkt")
 
-(define/contract (put-constant n)
+(define/contract (put-constant n #:desired-length [desired-length #f])
   ;; Puts the constant at the current memory position. Clobbers math
   ;; and operations ring values. Should be run inside a build-whirl
   ;; block.
-  (-> integer? code/c)
+  (->* (integer?) (#:desired-length (or/c #f integer?)) code/c)
   (let ([comment (format "put constant ~a" (digits->words n))]
         [digits (number->digits (abs n))]
         [destination-pos (get-field memory-position (interpreter-state))])
@@ -29,11 +29,11 @@
      (exec math/store-memory)
      #:comment comment)))
 
-(define/contract (store-constant var n)
+(define/contract (store-constant var n #:desired-length [desired-length #f])
   ;; Stores the constant at the given memory position. Clobbers math
   ;; and operations ring values. Should be run inside a build-whirl
   ;; block.
-  (-> var? integer? code/c)
+  (->* (var? integer?) (#:desired-length (or/c #f integer?)) code/c)
   (code
     (seek-var var)
     (put-constant n)))

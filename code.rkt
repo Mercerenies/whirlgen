@@ -77,7 +77,8 @@
   (new newline-code%))
 
 (define (code #:comment [comment #f] #:desired-length [desired-length #f] . objects)
-  (->* () (#:comment string? #:desired-length integer?) #:rest (listof (or/c string? code/c)) code/c)
+  (->* () (#:comment (or/c string? #f) #:desired-length (or/c integer? #f))
+       #:rest (listof (or/c string? code/c)) code/c)
   (let* ([code-blocks (map (λ (obj) (if (string? obj) (new string-code% [text obj]) obj)) objects)]
          [code-object (if (= (length code-blocks) 1)
                           (first code-blocks)
