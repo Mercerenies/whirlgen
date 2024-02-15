@@ -38,4 +38,4 @@
 (require "code.rkt")
 (require "euler179.rkt")
 
-(println (send project-euler-179 to-string))
+(display (send project-euler-179 to-string))
