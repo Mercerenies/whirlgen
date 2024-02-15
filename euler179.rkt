@@ -36,10 +36,12 @@
 (define program-length-upper-bound-exp 5) ; 10^5 is the upper bound on our program length right now.
 (define length-of-jump-instructions (+ 338 (* 264 program-length-upper-bound-exp)))
 
-(define project-euler-179-test
+(define project-euler-179
   (build-whirl var/-1 length-of-jump-instructions
-    (store-constant var/i 10)
-    (do-while-nonzero var/valuation var/constant
+    (store-constant var/i 0)
+    (assign var/valuation var/i)
+    (->bool var/valuation)
+    (while-nonzero var/valuation var/constant
       (seek-var var/i)
       (print-number)
       (store-constant var/constant 10)
@@ -52,7 +54,7 @@
     (store-constant var/constant 10)
     (print-ascii)))
 
-(define project-euler-179
+(define project-euler-179-test
   (build-whirl var/-1 length-of-jump-instructions
     (store-constant var/i 10)
     (print-number)

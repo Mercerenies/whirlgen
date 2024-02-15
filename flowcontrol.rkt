@@ -19,6 +19,10 @@
       (let-values ([(precursor if-body) (compile-if0 var/condition var/temporary actual-distance body)])
         (code precursor if-body)))))
 
+(define-syntax-rule (if-nonzero var/condition var/temporary . body)
+  (code (logical-not var/condition)
+        (if0 var/condition var/temporary . body)))
+
 (define-syntax-rule (compile-if0 var/condition var/temporary distance body)
   (values
    ;; Outside of if statement
@@ -56,6 +60,12 @@
       (let-values ([(precursor loop-body) (compile-do-while-nonzero var/condition var/temporary actual-distance body)])
         (code precursor loop-body)))))
 
+(define-syntax-rule (while-nonzero var/condition var/temporary . body)
+  ;; As do-while-nonzero but might run zero times. Same preconditions
+  ;; / postconditions apply.
+  (if-nonzero var/condition var/temporary
+    (do-while-nonzero var/condition var/temporary . body)))
+
 (define-syntax-rule (compile-do-while-nonzero var/condition var/temporary distance body)
   (values
    ;; Outside of loop
@@ -89,4 +99,5 @@
     (exec math/noop)
     #:comment "Reset rings to noop"))
 
-(provide if0 do-while-nonzero)
+(provide if0 if-nonzero
+         do-while-nonzero while-nonzero)
