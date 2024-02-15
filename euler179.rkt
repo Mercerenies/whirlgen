@@ -12,12 +12,25 @@
 (define var/j (var 'j 2))
 (define var/p (var 'p 4))
 (define var/valuation (var 'valuation 6))
-(define var/-1 (var 'minus-one 8)) ; Must be the largest non-array variable
+(define var/constant (var 'constant 8))
+(define var/-1 (var 'minus-one 10)) ; Must be the largest non-array variable
+
+;; Assuming var/constant and var/-1 are two positions away from each
+;; other, we find (based on the algorithm used in numbers.rkt) that if
+;; we want to be able to generate any of the nonnegative integers up
+;; to 10^n (inclusive), it will take at most 264 n + 338 characters to
+;; do so. We can rely on this by padding all of our jump-relevant
+;; number generation to this length so that we can calculate jump
+;; positions without needing to do fixed point nonsense. That is,
+;; provided our program length is less than 10^n, the jump length is
+;; independent of the code used to generate the jump length value,
+;; which allows us to calculate it.
+(define program-length-upper-bound-exp 5) ; 10^5 is the upper bound on our program length right now.
+(define length-of-jump-instructions (+ 338 (* 264 program-length-upper-bound-exp)))
 
 (define project-euler-179
   (build-whirl var/-1
-    (seek-var var/i)
-    (put-constant 1337)
+    (store-constant var/i 1337)
     (print-number)
     (put-constant 10)
     (print-ascii)

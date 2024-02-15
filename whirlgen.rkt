@@ -36,6 +36,7 @@
 (require "structures.rkt")
 (require "state.rkt")
 (require "code.rkt")
+(require "numbers.rkt")
 (require "euler179.rkt")
 
 (display (send project-euler-179 to-string))

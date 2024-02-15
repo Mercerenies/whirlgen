@@ -1,8 +1,7 @@
 
 #lang racket
 
-;; Helper to generate numerical constants. This function should be run
-;; inside a build-whirl block.
+;; Helper to generate numerical constants.
 
 (require threading)
 
@@ -10,10 +9,12 @@
 (require "command.rkt")
 (require "compiler.rkt")
 (require "utils.rkt")
+(require "structures.rkt")
 
 (define/contract (put-constant n)
   ;; Puts the constant at the current memory position. Clobbers math
-  ;; and operations ring values.
+  ;; and operations ring values. Should be run inside a build-whirl
+  ;; block.
   (-> integer? code/c)
   (let ([comment (format "put constant ~a" (digits->words n))]
         [digits (number->digits (abs n))]
@@ -27,6 +28,15 @@
        ([< n 0] (code (put-constant>0 destination-pos digits) (exec math/negate))))
      (exec math/store-memory)
      #:comment comment)))
+
+(define/contract (store-constant var n)
+  ;; Stores the constant at the given memory position. Clobbers math
+  ;; and operations ring values. Should be run inside a build-whirl
+  ;; block.
+  (-> var? integer? code/c)
+  (code
+    (seek-var var)
+    (put-constant n)))
 
 (define (put-constant>0 destination-pos digits)
   ;; Assuming some leading digits are present at the indicated memory
@@ -73,4 +83,22 @@
                   (map digit->word)
                   (string-join _ " "))]))
 
-(provide put-constant)
+(define/contract (calculate-longest-number var/destination var/-1 upper-limit)
+  ;; Returns the length of the longest code required to build any
+  ;; number from zero up to (and including) upper-limit, assuming the
+  ;; interpreter is currently in no-op state and pointing at the
+  ;; correct variable.
+  (-> var? var? integer? integer?)
+  (define (make-number n)
+    (build-whirl var/-1 #:prelude #f
+      ;; Assume we're already at the desired memory position but do
+      ;; NOT include that in the resulting code count.
+      (seek-var var/destination)
+      (put-constant n)))
+  (for/fold ([max-length 0])
+            ([i (in-range (+ 1 upper-limit))])
+    (let ([code (make-number i)])
+      (max max-length (send code length)))))
+
+(provide put-constant store-constant
+         calculate-longest-number)
