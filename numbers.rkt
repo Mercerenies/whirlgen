@@ -67,7 +67,7 @@
 (define (digits->words n)
   (cond
     [(= n 0) "zero"]
-    [(< n 0) (cons "minus" (digits->words (- n)))]
+    [(< n 0) (format "minus ~a" (digits->words (- n)))]
     [(> n 0) (~>> n
                   number->digits
                   (map digit->word)

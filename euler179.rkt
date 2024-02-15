@@ -17,7 +17,7 @@
 (define project-euler-179
   (build-whirl var/-1
     (seek-var var/i)
-    (put-constant 98712301)
+    (put-constant 1337)
     (print-number)
     (put-constant 10)
     (print-ascii)
