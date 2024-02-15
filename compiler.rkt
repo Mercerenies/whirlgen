@@ -40,14 +40,28 @@
   (code
     (exec op/set-to-one)
     (exec op/integer-io)
-    #:comment "Print to stdout"))
+    #:comment "Print integer to stdout"))
+
+(define/contract (print-ascii)
+  ;; Prints the value at the current memory position, as ASCII.
+  (-> code/c)
+  (code
+    (exec op/set-to-one)
+    (exec op/ascii-io)
+    #:comment "Print ASCII to stdout"))
+
+(define/contract (seek-memory target-memory)
+  ;; Moves the memory pointer to the given index. Clobbers operator
+  ;; wheel's value.
+  (-> integer? code/c)
+  (code (send (interpreter-state) move-memory target-memory)))
 
 (define/contract (seek-var target-var)
-  ;; Moves the memory pointer to the given position. Clobbers operator
+  ;; Moves the memory pointer to the given variable. Clobbers operator
   ;; wheel's value.
   (-> var? code/c)
   (code
-    (send (interpreter-state) move-memory (var-index target-var))
+    (seek-memory (var-index target-var))
     #:comment (format "Seek to ~a" (var-name target-var))))
 
 (define/contract (assign destination-var source-var)
@@ -64,5 +78,7 @@
 
 (provide build-whirl
          prelude exec
-         print-number
-         seek-var assign)
+         print-number print-ascii
+         seek-memory seek-var assign
+         (contract-out
+          (interpreter-state (-> (is-a?/c state%)))))
