@@ -36,12 +36,6 @@
 (require "structures.rkt")
 (require "state.rkt")
 (require "code.rkt")
+(require "euler179.rkt")
 
-(define var/-1 (var 'minus-one 2))
-
-(let ([state (new state% [var/-1 var/-1])])
-  (println (send state get-active-ring)))
-
-(let ([c (code "ABC" "DEF" (code "GHI") nl (code "JKL" #:comment "X") #:comment "y")])
-  (display (send c to-string))
-  (println (send c length)))
+(println (send project-euler-179 to-string))
