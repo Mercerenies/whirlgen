@@ -25,4 +25,8 @@
     ((9) "nine")
     (else (error "number must be in range 0..9"))))
 
-(provide number->digits digit->word)
+(define/contract (pad-right str n #:pad-char pad-char)
+  (-> string? natural-number/c #:pad-char char? string?)
+  (string-append str (make-string (max (- n (string-length str)) 0) pad-char)))
+
+(provide number->digits digit->word pad-right)

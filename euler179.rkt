@@ -7,6 +7,7 @@
 (require "compiler.rkt")
 (require "command.rkt")
 (require "numbers.rkt")
+(require "code.rkt")
 
 (define var/i (var 'i 0))
 (define var/j (var 'j 2))
@@ -19,17 +20,19 @@
 ;; other, we find (based on the algorithm used in numbers.rkt) that if
 ;; we want to be able to generate any of the nonnegative integers up
 ;; to 10^n (inclusive), it will take at most 264 n + 338 characters to
-;; do so. We can rely on this by padding all of our jump-relevant
-;; number generation to this length so that we can calculate jump
-;; positions without needing to do fixed point nonsense. That is,
-;; provided our program length is less than 10^n, the jump length is
-;; independent of the code used to generate the jump length value,
-;; which allows us to calculate it.
+;; do so (assuming we're pointing at the ops wheel and both wheels are
+;; in noop position). We can rely on this by padding all of our
+;; jump-relevant number generation to this length so that we can
+;; calculate jump positions without needing to do fixed point
+;; nonsense. That is, provided our program length is less than 10^n,
+;; the jump length is independent of the code used to generate the
+;; jump length value, which allows us to calculate it.
 (define program-length-upper-bound-exp 5) ; 10^5 is the upper bound on our program length right now.
 (define length-of-jump-instructions (+ 338 (* 264 program-length-upper-bound-exp)))
 
 (define project-euler-179
   (build-whirl var/-1
+    (store-constant var/i 3)
     (store-constant var/i 100)
     (print-number)
     (store-constant var/constant 10)

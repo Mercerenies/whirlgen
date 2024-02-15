@@ -3,6 +3,8 @@
 
 (require threading)
 
+(require "utils.rkt")
+
 (define code<%>
   (interface ()
     [to-string (->m string?)]
@@ -57,19 +59,35 @@
     (define/public (length)
       (send code length))))
 
+(define/contract padded-code%
+  (class/c (init-field (code code/c) (desired-length integer?)))
+  (class* object% (code<%>)
+    (super-new)
+    (init-field code desired-length)
+    (define/public (to-string)
+      (let ([inner-code (send code to-string)])
+        (if (> (string-length inner-code) desired-length)
+            (error "Code is too long")
+            (pad-right inner-code desired-length #:pad-char #\2))))
+    (define/public (length)
+      desired-length)))
+
 (define/contract nl
   code/c
   (new newline-code%))
 
-(define (code #:comment [comment #f] . objects)
-  (->* () (#:comment string?) #:rest (listof (or/c string? code/c)) code/c)
+(define (code #:comment [comment #f] #:desired-length [desired-length #f] . objects)
+  (->* () (#:comment string? #:desired-length integer?) #:rest (listof (or/c string? code/c)) code/c)
   (let* ([code-blocks (map (λ (obj) (if (string? obj) (new string-code% [text obj]) obj)) objects)]
          [code-object (if (= (length code-blocks) 1)
                           (first code-blocks)
-                          (new list-code% [body code-blocks]))])
+                          (new list-code% [body code-blocks]))]
+         [padded-code (if desired-length
+                          (new padded-code% [code code-object] [desired-length desired-length])
+                          code-object)])
     (if comment
-        (new commented-code% [code code-object] [comment comment])
-        code-object)))
+        (new commented-code% [code padded-code] [comment comment])
+        padded-code)))
 
 (provide
  code<%> code/c

@@ -38,5 +38,6 @@
 (require "code.rkt")
 (require "numbers.rkt")
 (require "euler179.rkt")
+(require "utils.rkt")
 
 (display (send project-euler-179 to-string))
