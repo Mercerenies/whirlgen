@@ -33,13 +33,18 @@
 
 (define project-euler-179
   (build-whirl var/-1 length-of-jump-instructions
-    (store-constant var/i 0)
-    (store-constant var/constant 1) (print-number)
-    (store-constant var/constant 10) (print-ascii)
-    (if0 var/i var/constant
-      (store-constant var/constant 2) (print-number)
-      (store-constant var/constant 10) (print-ascii))
-    (store-constant var/constant 3) (print-number)
-    (store-constant var/constant 10) (print-ascii)))
+    (store-constant var/i 10)
+    (do-while-nonzero var/valuation var/constant
+      (seek-var var/i)
+      (print-number)
+      (store-constant var/constant 10)
+      (print-ascii)
+      (add var/i var/-1)
+      (assign var/valuation var/i)
+      (->bool var/valuation))
+    (store-constant var/i 999)
+    (print-number)
+    (store-constant var/constant 10)
+    (print-ascii)))
 
 (provide project-euler-179)

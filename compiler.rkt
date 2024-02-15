@@ -136,6 +136,7 @@
          print-number print-ascii
          seek-memory seek-var
          assign add mul
+         logical-not ->bool
          (contract-out
           (interpreter-state (-> (is-a?/c state%)))
           (jump-constant-length (-> integer?))))
