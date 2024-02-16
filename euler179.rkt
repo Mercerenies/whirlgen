@@ -27,19 +27,13 @@
 
 (define array-start-index (+ 2 (var-index var/-1)))
 
-;; Assuming var/constant and var/-1 are two positions away from each
-;; other, we find (based on the algorithm used in numbers.rkt) that if
-;; we want to be able to generate any of the nonnegative integers up
-;; to 10^n (inclusive), it will take at most 264 n + 338 characters to
-;; do so (assuming we're pointing at the ops wheel and both wheels are
-;; in noop position). We can rely on this by padding all of our
-;; jump-relevant number generation to this length so that we can
-;; calculate jump positions without needing to do fixed point
-;; nonsense. That is, provided our program length is less than 10^n,
-;; the jump length is independent of the code used to generate the
-;; jump length value, which allows us to calculate it.
-(define program-length-upper-bound-exp 7) ; 10^7 is the upper bound on our program length right now.
-(define length-of-jump-instructions (+ 338 (* 264 program-length-upper-bound-exp)))
+;; We pad all jump instructions to the same length. I originally
+;; calculated a nice upper bound for this mathematically, but it ends
+;; up being a pretty loose upper bound (especially with the
+;; improvements that have since been made to the number production
+;; algorithm), so now this number is arbitrarily set to be relatively
+;; close to the actual required amount and adjusted as needed.
+(define length-of-jump-instructions 900)
 
 (define (setup-limit-constant)
   (store-constant var/limit 100001)) ; 10000001
