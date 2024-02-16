@@ -36,7 +36,7 @@
 (define length-of-jump-instructions 900)
 
 (define (setup-limit-constant)
-  (store-constant var/limit 400001)) ;; 10000001
+  (store-constant var/limit 10000001))
 
 (define (print-newline)
   (code (store-constant var/constant 10)

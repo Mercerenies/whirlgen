@@ -82,8 +82,9 @@
   (let ([distance-to-array (- array-start-index (var-index var/source))])
     (code
       (assign var/tmp1 var/index)
-      (store-constant var/tmp2 2)
-      (mul var/tmp1 var/tmp2)
+      (exec math/load-memory)
+      (exec math/+)
+      (exec math/store-memory)
       (store-constant var/tmp2 distance-to-array)
       (add var/tmp1 var/tmp2)
       (code (exec math/load-memory)
