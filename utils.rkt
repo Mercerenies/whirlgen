@@ -1,14 +1,14 @@
 
 #lang racket
 
-(define/contract (number->digits n)
-  (-> natural-number/c list?)
-  (number->digits-rec n '()))
+(define/contract (number->digits n #:radix [radix 10])
+  (->* (natural-number/c) (#:radix natural-number/c) list?)
+  (number->digits-rec n radix '()))
 
-(define (number->digits-rec n acc)
+(define (number->digits-rec n radix acc)
   (if (zero? n)
       acc
-      (number->digits-rec (quotient n 10) (cons (modulo n 10) acc))))
+      (number->digits-rec (quotient n radix) radix (cons (modulo n radix) acc))))
 
 (define/contract (digit->word n)
   (-> (integer-in 0 9) string?)

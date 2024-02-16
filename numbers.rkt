@@ -17,15 +17,14 @@
   ;; block.
   (->* (integer?) (#:desired-length (or/c #f integer?)) code/c)
   (let ([comment (format "put constant ~a" (digits->words n))]
-        [digits (number->digits (abs n))]
-        [destination-pos (get-field memory-position (interpreter-state))])
+        [digits (number->digits (abs n) #:radix 2)])
     (code
      (exec math/set-to-zero)
      (exec math/store-memory)
      (cond
        ([= n 0] (code))
-       ([> n 0] (put-constant>0 destination-pos digits))
-       ([< n 0] (code (put-constant>0 destination-pos digits) (exec math/negate))))
+       ([> n 0] (code (put-constant>0 digits)))
+       ([< n 0] (code (put-constant>0 digits) (exec math/negate))))
      (exec math/store-memory)
      #:comment comment
      #:desired-length desired-length)))
@@ -39,24 +38,26 @@
     (seek-var var)
     (put-constant n #:desired-length desired-length)))
 
-(define (put-constant>0 destination-pos digits)
+(define (put-constant>0 digits)
   ;; Assuming some leading digits are present at the indicated memory
   ;; position, generate the remainder and tack it onto the end.
-  (let ([temporary-pos (+ 1 destination-pos)])
-    (if (null? digits)
-        (code) ; Done.
-        (code
-         (seek-memory temporary-pos)
-         (make-small-constant 10)
-         (seek-memory destination-pos)
-         (exec math/*)
-         (exec math/store-memory)
-         (seek-memory temporary-pos)
-         (make-small-constant (car digits))
-         (seek-memory destination-pos)
-         (exec math/+)
-         (exec math/store-memory)
-         (put-constant>0 destination-pos (cdr digits))))))
+  (cond
+    [(null? digits) (code)] ; Done
+    [(= (car digits) 0) (code (mul2) (put-constant>0 (cdr digits)))]
+    [(= (car digits) 1) (code (mul2) (add1) (put-constant>0 (cdr digits)))]))
+
+(define (mul2)
+  (code
+   (exec math/load-memory)
+   (exec math/+)
+   (exec math/store-memory)))
+
+(define (add1)
+  (code
+   (exec math/set-to-zero)
+   (exec math/not)
+   (exec math/+)
+   (exec math/store-memory)))
 
 (define (make-small-constant n)
   ;; Given a small positive number, produce that number on the math
