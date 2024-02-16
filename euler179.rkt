@@ -36,7 +36,7 @@
 (define length-of-jump-instructions 900)
 
 (define (setup-limit-constant)
-  (store-constant var/limit 100001)) ; 10000001
+  (store-constant var/limit 200001)) ; 10000001
 
 (define (print-newline)
   (code (store-constant var/constant 10)
@@ -59,8 +59,19 @@
     ;; Initialization
     (setup-limit-constant)
 
-    ;; Set largest_prime array values.
+    ;; Set largest_prime array values for i = 2 specifically.
     (store-constant var/i 2)
+    (store-constant var/j 2)
+    (do-while-nonzero var/condition var/tmp1
+      (array-get array-start-index var/array-value var/j var/tmp1 var/tmp2)
+      (array-set array-start-index var/i var/j var/tmp1 var/tmp2)
+      (increment var/j)
+      (increment var/j)
+      (assign var/condition var/j)
+      (cmp< var/condition var/limit))
+
+    ;; Set largest_prime array values.
+    (store-constant var/i 3)
     (do-while-nonzero var/condition var/tmp1
       (array-get array-start-index var/array-value var/i var/tmp1 var/tmp2)
       (->bool var/array-value)
@@ -75,6 +86,7 @@
           (add var/j var/i)
           (assign var/condition var/j)
           (cmp< var/condition var/limit)))
+      (increment var/i)
       (increment var/i)
       (assign var/condition var/i)
       (cmp< var/condition var/limit))
